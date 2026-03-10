@@ -1,19 +1,17 @@
-name: Bot Konten Otomatis 24/7
+name: Bot Otak (Fase 1)
 
 on:
-  schedule:
-    - cron: '0 */6 * * *'
-  workflow_dispatch:
+  workflow_dispatch: # Pemicu Manual
 
 env:
+  # Mematuhi Blueprint Bab 2.2: Migrasi Lingkungan Node.js 24
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
-# INI KUNCI PENDOBRAKNYA: Memaksa izin tulis langsung dari dalam file
 permissions:
   contents: write
 
 jobs:
-  build:
+  pikirkan_konsep:
     runs-on: ubuntu-latest
     steps:
       - name: Ambil kode dari repo
@@ -22,20 +20,18 @@ jobs:
       - name: Siapkan Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
-      - name: Instal aplikasi pendukung
+      - name: Instal modul pendukung
         run: pip install -r requirements.txt
 
-      - name: Jalankan Bot Pembuat Gambar
-        run: python main.py
+      - name: Jalankan Otak Gemini
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python main_fase1.py
 
-      # Langkah baru untuk mengecek isi folder (Debugging)
-      - name: Cek keberadaan file gambar
-        run: ls -la hasil_konten/ || echo "Folder tidak ditemukan!"
-
-      - name: Simpan Hasil ke GitHub
+      - name: Simpan state.json ke Repo (Sementara untuk cek)
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "Update konten otomatis [Bot]"
-          file_pattern: 'hasil_konten/*.jpg'
+          commit_message: "Update otak: state.json baru"
+          file_pattern: 'state.json'
