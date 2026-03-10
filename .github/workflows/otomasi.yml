@@ -1,7 +1,9 @@
-name: Pabrik Konten Lengkap (Fase 1, 2, 3)
+name: Pabrik Konten Final (Otomatis ZIP)
 
 on:
-  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *' # Otomatis jalan setiap jam 7 pagi WIB
+  workflow_dispatch: # Bisa diklik manual kapan saja
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -10,7 +12,7 @@ permissions:
   contents: write
 
 jobs:
-  produksi_aset_lengkap:
+  produksi_aset:
     runs-on: ubuntu-latest
     steps:
       - name: Ambil kode dari repo
@@ -24,21 +26,24 @@ jobs:
       - name: Instal modul pendukung
         run: pip install google-generativeai requests
 
-      - name: Fase 1 - Jalankan Otak Gemini
+      - name: Fase 1 - Otak Gemini
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python main_fase1.py
 
-      - name: Fase 2 - Jalankan Pelukis AI
+      - name: Fase 2 - Pelukis AI
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: python main_fase2.py
 
-      - name: Fase 3 - Rakit Metadata CSV
+      - name: Fase 3 - Perakit Metadata
         run: python main_fase3_csv.py
 
-      - name: Simpan Seluruh Hasil ke Repo
+      - name: Bungkus ke dalam ZIP
+        run: zip hasil_panen.zip base_image.jpg metadata.csv state.json
+
+      - name: Simpan Hasil Panen ke Repo
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "Update: Memproduksi JSON, JPG, dan CSV"
-          file_pattern: 'state.json base_image.jpg metadata.csv'
+          commit_message: "Bot sukses memproduksi Aset Baru!"
+          file_pattern: 'hasil_panen.zip'
