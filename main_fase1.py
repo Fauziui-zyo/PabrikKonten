@@ -2,69 +2,69 @@ import os
 import json
 import sys
 import google.generativeai as genai
+import random
 
 def panggil_gemini_otak():
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
-        print("ERROR: GEMINI_API_KEY tidak ditemukan di GitHub Secrets!")
+        print("ERROR: GEMINI_API_KEY tidak ditemukan!")
         sys.exit(1)
 
-    # Mengaktifkan SDK Resmi
     genai.configure(api_key=api_key)
 
-    print("Mencari model AI yang aktif dan tersedia...")
+    # Bot mendeteksi model aktif
     model_pilihan = None
-    try:
-        # Bot otomatis mencari model yang mendukung 'generateContent'
-        for m in genai.list_models():
-            if 'generateContent' in m.supported_generation_methods:
-                model_pilihan = m.name
-                break
-    except Exception as e:
-        print(f"Gagal menghubungi server Google: {e}")
-        sys.exit(1)
+    for m in genai.list_models():
+        if 'generateContent' in m.supported_generation_methods:
+            model_pilihan = m.name
+            break
 
-    if not model_pilihan:
-        print("ERROR: Tidak ada model Gemini yang tersedia untuk API Key ini.")
-        sys.exit(1)
-
-    print(f"Berhasil menemukan model aktif: {model_pilihan}")
     model = genai.GenerativeModel(model_pilihan)
     
-    instruksi = """
-    Bertindaklah sebagai Creative Director & Ahli SEO. Buatlah 1 konsep video/gambar dengan tema 'Microscopic Medical Science' (seperti sel, DNA, virus neon).
-    Anda WAJIB merespons HANYA dengan format JSON yang valid, tanpa teks awalan atau akhiran (tanpa ```json). Formatnya harus persis seperti ini:
-    {
-      "youtube": {
-        "judul": "Judul Shorts max 50 karakter",
-        "deskripsi": "Deskripsi pendek dengan 3 hashtag",
-        "naskah_suara": "Naskah narasi 15 detik dengan hook di awal. Bahasa Inggris."
-      },
-      "adobestock": {
-        "judul": "Judul deskriptif 5-8 kata bahasa Inggris, TANPA nama merk/tokoh",
-        "kata_kunci": "keyword1, keyword2, keyword3, ... (Tepat 30 kata kunci dipisah koma)",
-        "prompt_gambar": "Prompt bahasa Inggris sangat detail untuk AI Image Generator. Fokus ke 3D render, mikroskopik, neon, hyperrealistic."
-      }
-    }
+    # Kumpulan Tema Paling Laris (Best Seller)
+    tema_laris = [
+        "Abstract Cyber Security with glowing circuits and wide dark copy space on the right",
+        "Minimalist modern office interior with soft sunlight and empty white wall for copy space",
+        "Geometric 3D background with soft pastel colors and professional minimalist look",
+        "Clean medical technology background with DNA strands in the corner and massive empty blue space",
+        "Digital banking concept with abstract data visualization and clean layout for text"
+    ]
+    tema_saat_ini = random.choice(tema_laris)
+
+    instruksi = f"""
+    Bertindaklah sebagai Senior Art Director di Adobe Stock. 
+    TEMA HARI INI: {tema_saat_ini}.
+    Buatlah konsep gambar yang memfokuskan pada 'Copy Space' (area kosong yang luas) agar desainer bisa menaruh teks.
+    
+    Anda WAJIB merespons HANYA dengan format JSON valid:
+    {{
+      "youtube": {{
+        "judul": "Judul Shorts edukatif & menarik",
+        "deskripsi": "Deskripsi singkat + 3 hashtag populer",
+        "naskah_suara": "Naskah narasi 15 detik yang membahas fakta menarik tentang teknologi/bisnis sesuai tema."
+      }},
+      "adobestock": {{
+        "judul": "Judul komersial profesional tanpa kata subjektif (5-10 kata)",
+        "kata_kunci": "minimalist, background, copy space, professional, modern, (tambah 25 kata kunci relevan lainnya)",
+        "prompt_gambar": "High-end commercial photography style, {tema_saat_ini}, cinematic lighting, shot on 8k, sharp focus, professional color grading, minimalist composition."
+      }}
+    }}
     """
 
-    print("Meminta Gemini merumuskan konsep & metadata...")
+    print(f"Menggunakan tema: {tema_saat_ini}")
     try:
         response = model.generate_content(instruksi)
-        # Membersihkan teks agar murni JSON
         teks_json = response.text.strip().removeprefix('```json').removesuffix('```').strip()
-        
         data_terstruktur = json.loads(teks_json)
         
         with open("state.json", "w") as f:
             json.dump(data_terstruktur, f, indent=4)
             
-        print("SUKSES: Otak telah merumuskan state.json!")
-        print(f"Bocoran Konsep: {data_terstruktur['adobestock']['judul']}")
+        print("SUKSES: Konsep High-Profit berhasil dirumuskan!")
+        print(f"Target Hari Ini: {data_terstruktur['adobestock']['judul']}")
         sys.exit(0)
-
     except Exception as e:
-        print(f"Error saat merumuskan atau Parsing JSON: {e}")
+        print(f"Error: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":
