@@ -1,4 +1,4 @@
-name: Bot Otak (Fase 1)
+name: Pabrik Konten Lengkap (Fase 1, 2, 3)
 
 on:
   workflow_dispatch:
@@ -10,7 +10,7 @@ permissions:
   contents: write
 
 jobs:
-  pikirkan_konsep:
+  produksi_aset_lengkap:
     runs-on: ubuntu-latest
     steps:
       - name: Ambil kode dari repo
@@ -21,17 +21,24 @@ jobs:
         with:
           python-version: '3.11'
 
-      # Instal SDK Resmi Google (Lebih aman & stabil)
       - name: Instal modul pendukung
-        run: pip install google-generativeai
+        run: pip install google-generativeai requests
 
-      - name: Jalankan Otak Gemini
+      - name: Fase 1 - Jalankan Otak Gemini
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python main_fase1.py
 
-      - name: Simpan state.json ke Repo
+      - name: Fase 2 - Jalankan Pelukis AI
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: python main_fase2.py
+
+      - name: Fase 3 - Rakit Metadata CSV
+        run: python main_fase3_csv.py
+
+      - name: Simpan Seluruh Hasil ke Repo
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "Update otak: state.json baru"
-          file_pattern: 'state.json'
+          commit_message: "Update: Memproduksi JSON, JPG, dan CSV"
+          file_pattern: 'state.json base_image.jpg metadata.csv'
