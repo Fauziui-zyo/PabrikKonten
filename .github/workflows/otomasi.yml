@@ -21,10 +21,9 @@ jobs:
         with:
           python-version: '3.11'
 
-      # PERUBAHANNYA ADA DI SINI BANG: 
-      # Kita langsung instal 'requests' tanpa butuh requirements.txt
+      # Instal SDK Resmi Google (Lebih aman & stabil)
       - name: Instal modul pendukung
-        run: pip install requests
+        run: pip install google-generativeai
 
       - name: Jalankan Otak Gemini
         env:
