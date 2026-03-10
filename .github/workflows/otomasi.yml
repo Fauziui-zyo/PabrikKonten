@@ -2,24 +2,24 @@ name: Bot Konten Otomatis 24/7
 
 on:
   schedule:
-    # Berjalan setiap 6 jam secara otomatis
     - cron: '0 */6 * * *'
-  workflow_dispatch: # Supaya bisa kita klik tombol "Run" manual buat tes
+  workflow_dispatch:
 
 env:
-  # Memaksa penggunaan Node.js 24 agar tidak ada peringatan deprecation
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+# INI KUNCI PENDOBRAKNYA: Memaksa izin tulis langsung dari dalam file
+permissions:
+  contents: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Ambil kode dari repo
-        # Diperbarui ke v4 (Mendukung Node 24)
         uses: actions/checkout@v4
 
       - name: Siapkan Python
-        # Diperbarui ke v5 (Mendukung Node 24)
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
@@ -30,8 +30,11 @@ jobs:
       - name: Jalankan Bot Pembuat Gambar
         run: python main.py
 
+      # Langkah baru untuk mengecek isi folder (Debugging)
+      - name: Cek keberadaan file gambar
+        run: ls -la hasil_konten/ || echo "Folder tidak ditemukan!"
+
       - name: Simpan Hasil ke GitHub
-        # Diperbarui ke v5 (Mendukung Node 24)
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Update konten otomatis [Bot]"
