@@ -10,7 +10,8 @@ def panggil_gemini_otak():
         print("ERROR: GEMINI_API_KEY tidak ditemukan di GitHub Secrets!")
         sys.exit(1)
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+    # PERUBAHAN DI SINI: Kita gunakan 'gemini-pro' yang merupakan model paling stabil
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={api_key}"
     
     # Perintah (Prompt) ketat agar Gemini menjawab HANYA dengan format JSON
     instruksi = """
@@ -43,13 +44,13 @@ def panggil_gemini_otak():
             hasil = response.json()
             teks_json = hasil['candidates'][0]['content']['parts'][0]['text']
             
-            # Membersihkan teks dari sisa-sisa markdown markdown jika ada
+            # Membersihkan teks dari sisa-sisa markdown jika ada
             teks_json = teks_json.strip().removeprefix('```json').removesuffix('```').strip()
             
             # Validasi apakah format JSON benar
             data_terstruktur = json.loads(teks_json)
             
-            # Menyimpan hasil ke file state.json (Sesuai Blueprint Bab 3.2)
+            # Menyimpan hasil ke file state.json
             with open("state.json", "w") as f:
                 json.dump(data_terstruktur, f, indent=4)
                 
