@@ -1,31 +1,48 @@
 import requests
 import os
 import sys
+import urllib.parse
 from datetime import datetime
+import time
 
 def buat_gambar_ai():
-    prompt = "high_quality_medical_abstract_art_dna_blue_theme_4k"
-    # Kita tambahkan parameter acak (seed) agar gambarnya selalu baru
-    seed = datetime.now().strftime('%S%M')
-    url = f"https://image.pollinations.ai/prompt/{prompt}?width=1080&height=1920&nologo=true&seed={seed}"
+    # Prompt menggunakan spasi biasa, nanti di-encode otomatis oleh sistem
+    prompt_teks = "high quality medical abstract art dna blue theme 4k"
+    prompt_aman = urllib.parse.quote(prompt_teks)
     
-    print(f"Mengambil gambar dari: {url}")
+    # URL kita buat sangat sederhana agar server mereka tidak bingung
+    url = f"https://image.pollinations.ai/prompt/{prompt_aman}"
     
-    # Tambahkan header agar kita tidak dikira robot spam oleh Pollinations
-    headers = {'User-Agent': 'Mozilla/5.0'}
-    response = requests.get(url, headers=headers)
+    print(f"Mencoba mengambil gambar dari API Pollinations...")
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
     
-    if response.status_code == 200:
-        os.makedirs("hasil_konten", exist_ok=True)
-        nama_file = f"hasil_konten/AI_Image_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg"
+    # Bot akan mencoba maksimal 3 kali kalau server AI sedang sibuk
+    for percobaan in range(3):
+        print(f"Mulai percobaan ke-{percobaan + 1}...")
+        try:
+            # timeout=30 agar bot tidak nunggu selamanya kalau server sana hang
+            response = requests.get(url, headers=headers, timeout=30)
+            
+            if response.status_code == 200:
+                os.makedirs("hasil_konten", exist_ok=True)
+                nama_file = f"hasil_konten/AI_Image_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg"
+                
+                with open(nama_file, 'wb') as f:
+                    f.write(response.content)
+                print(f"Mantap Bang! Gambar berhasil disimpan di: {nama_file}")
+                sys.exit(0) # Lapor sukses (Hijau) ke GitHub
+            else:
+                print(f"Server AI sibuk (Error {response.status_code}).")
         
-        with open(nama_file, 'wb') as f:
-            f.write(response.content)
-        print(f"Berhasil! Gambar disimpan di: {nama_file}")
-    else:
-        print(f"Error {response.status_code}: Gagal mengambil gambar dari server AI.")
-        # Ini yang bikin GitHub jadi MERAH kalau beneran gagal
-        sys.exit(1) 
+        except Exception as e:
+            print(f"Terjadi gangguan sinyal ke server: {e}")
+        
+        # Kalau gagal, istirahat 5 detik sebelum gedor pintu servernya lagi
+        print("Istirahat 5 detik sebelum coba lagi...\n")
+        time.sleep(5)
+        
+    print("Sudah mencoba 3 kali tapi server AI tetap menolak. Menyerah untuk sesi ini.")
+    sys.exit(1) # Lapor gagal (Merah) ke GitHub
 
 if __name__ == "__main__":
     buat_gambar_ai()
