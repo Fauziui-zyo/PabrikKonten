@@ -1,10 +1,9 @@
 name: Bot Otak (Fase 1)
 
 on:
-  workflow_dispatch: # Pemicu Manual
+  workflow_dispatch:
 
 env:
-  # Mematuhi Blueprint Bab 2.2: Migrasi Lingkungan Node.js 24
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 permissions:
@@ -22,15 +21,17 @@ jobs:
         with:
           python-version: '3.11'
 
+      # PERUBAHANNYA ADA DI SINI BANG: 
+      # Kita langsung instal 'requests' tanpa butuh requirements.txt
       - name: Instal modul pendukung
-        run: pip install -r requirements.txt
+        run: pip install requests
 
       - name: Jalankan Otak Gemini
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python main_fase1.py
 
-      - name: Simpan state.json ke Repo (Sementara untuk cek)
+      - name: Simpan state.json ke Repo
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Update otak: state.json baru"
