@@ -1,9 +1,9 @@
-name: Pabrik Konten Final (Otomatis ZIP)
+name: Pabrik Konten 100 Persen Otonom
 
 on:
   schedule:
-    - cron: '0 0 * * *' # Otomatis jalan setiap jam 7 pagi WIB
-  workflow_dispatch: # Bisa diklik manual kapan saja
+    - cron: '30 0 * * *' # Jalan otomatis jam 07.30 WITA setiap hari
+  workflow_dispatch:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -12,38 +12,50 @@ permissions:
   contents: write
 
 jobs:
-  produksi_aset:
+  eksekusi_total:
     runs-on: ubuntu-latest
     steps:
-      - name: Ambil kode dari repo
+      - name: Checkout Repo
         uses: actions/checkout@v4
 
-      - name: Siapkan Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Instal modul pendukung
-        run: pip install google-generativeai requests
+      - name: Instal FFmpeg & Library
+        run: |
+          sudo apt-get update && sudo apt-get install -y ffmpeg
+          pip install google-generativeai requests edge-tts google-api-python-client google-auth-oauthlib
 
-      - name: Fase 1 - Otak Gemini
+      - name: Fase 1 - Gemini (Ide & Metadata)
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python main_fase1.py
 
-      - name: Fase 2 - Pelukis AI
+      - name: Fase 2 - Hugging Face (Lukisan AI)
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: python main_fase2.py
 
-      - name: Fase 3 - Perakit Metadata
+      - name: Fase 3 - Metadata Adobe Stock
         run: python main_fase3_csv.py
 
-      - name: Bungkus ke dalam ZIP
-        run: zip hasil_panen.zip base_image.jpg metadata.csv state.json
+      - name: Fase 5 - Voiceover (Suara AI)
+        run: python main_fase5_voice.py
 
-      - name: Simpan Hasil Panen ke Repo
+      - name: Fase 6 - Rakit Video (Auto-Motion)
+        run: python main_fase6_assemble.py
+
+      - name: Fase 7 - Upload YouTube Shorts
+        env:
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+        run: python main_fase7_upload.py
+
+      - name: Simpan Hasil Harian
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "Bot sukses memproduksi Aset Baru!"
-          file_pattern: 'hasil_panen.zip'
+          commit_message: "Konten harian otomatis berhasil diproduksi"
+          file_pattern: 'state.json base_image.jpg metadata.csv voice.mp3 final_shorts.mp4'
