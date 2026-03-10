@@ -1,0 +1,31 @@
+name: Bot Konten Otomatis 24/7
+
+on:
+  schedule:
+    # Berjalan setiap 6 jam secara otomatis
+    - cron: '0 */6 * * *'
+  workflow_dispatch: # Supaya bisa kita klik tombol "Run" manual buat tes
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ambil kode dari repo
+        uses: actions/checkout@v3
+
+      - name: Siapkan Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Instal aplikasi pendukung
+        run: pip install -r requirements.txt
+
+      - name: Jalankan Bot Pembuat Gambar
+        run: python main.py
+
+      - name: Simpan Hasil ke GitHub
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "Update konten otomatis [Bot]"
+          file_pattern: 'hasil_konten/*.jpg'
