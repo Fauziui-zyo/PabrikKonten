@@ -1,19 +1,36 @@
 import os
 import json
-import requests
 import sys
+import google.generativeai as genai
 
 def panggil_gemini_otak():
-    # Mengambil kunci dari Brankas GitHub
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
         print("ERROR: GEMINI_API_KEY tidak ditemukan di GitHub Secrets!")
         sys.exit(1)
 
-    # PERUBAHAN DI SINI: Kita gunakan 'gemini-pro' yang merupakan model paling stabil
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={api_key}"
+    # Mengaktifkan SDK Resmi
+    genai.configure(api_key=api_key)
+
+    print("Mencari model AI yang aktif dan tersedia...")
+    model_pilihan = None
+    try:
+        # Bot otomatis mencari model yang mendukung 'generateContent'
+        for m in genai.list_models():
+            if 'generateContent' in m.supported_generation_methods:
+                model_pilihan = m.name
+                break
+    except Exception as e:
+        print(f"Gagal menghubungi server Google: {e}")
+        sys.exit(1)
+
+    if not model_pilihan:
+        print("ERROR: Tidak ada model Gemini yang tersedia untuk API Key ini.")
+        sys.exit(1)
+
+    print(f"Berhasil menemukan model aktif: {model_pilihan}")
+    model = genai.GenerativeModel(model_pilihan)
     
-    # Perintah (Prompt) ketat agar Gemini menjawab HANYA dengan format JSON
     instruksi = """
     Bertindaklah sebagai Creative Director & Ahli SEO. Buatlah 1 konsep video/gambar dengan tema 'Microscopic Medical Science' (seperti sel, DNA, virus neon).
     Anda WAJIB merespons HANYA dengan format JSON yang valid, tanpa teks awalan atau akhiran (tanpa ```json). Formatnya harus persis seperti ini:
@@ -31,38 +48,23 @@ def panggil_gemini_otak():
     }
     """
 
-    payload = {
-        "contents": [{"parts": [{"text": instruksi}]}],
-        "generationConfig": {"temperature": 0.7}
-    }
-
     print("Meminta Gemini merumuskan konsep & metadata...")
     try:
-        response = requests.post(url, json=payload, timeout=30)
+        response = model.generate_content(instruksi)
+        # Membersihkan teks agar murni JSON
+        teks_json = response.text.strip().removeprefix('```json').removesuffix('```').strip()
         
-        if response.status_code == 200:
-            hasil = response.json()
-            teks_json = hasil['candidates'][0]['content']['parts'][0]['text']
+        data_terstruktur = json.loads(teks_json)
+        
+        with open("state.json", "w") as f:
+            json.dump(data_terstruktur, f, indent=4)
             
-            # Membersihkan teks dari sisa-sisa markdown jika ada
-            teks_json = teks_json.strip().removeprefix('```json').removesuffix('```').strip()
-            
-            # Validasi apakah format JSON benar
-            data_terstruktur = json.loads(teks_json)
-            
-            # Menyimpan hasil ke file state.json
-            with open("state.json", "w") as f:
-                json.dump(data_terstruktur, f, indent=4)
-                
-            print("SUKSES: Otak telah merumuskan state.json!")
-            print(f"Bocoran Konsep: {data_terstruktur['adobestock']['judul']}")
-            sys.exit(0)
-        else:
-            print(f"Gagal memanggil Gemini: {response.text}")
-            sys.exit(1)
+        print("SUKSES: Otak telah merumuskan state.json!")
+        print(f"Bocoran Konsep: {data_terstruktur['adobestock']['judul']}")
+        sys.exit(0)
 
     except Exception as e:
-        print(f"Error Jaringan/Parsing JSON: {e}")
+        print(f"Error saat merumuskan atau Parsing JSON: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":
