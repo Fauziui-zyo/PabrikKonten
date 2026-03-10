@@ -1,12 +1,12 @@
 {
     "youtube": {
-        "judul": "Hidden Worlds: The Neon Universe Inside You",
-        "deskripsi": "Jelajahi keindahan menakjubkan dari kehidupan mikroskopis. #MedicalScience #MicroscopicWorld #BioTech",
-        "naskah_suara": "Ever wondered what magic unfolds inside you? Dive into the breathtaking microscopic world! See vibrant cells dancing, DNA strands glowing, and viruses transforming, all in stunning neon light. This is the hidden universe, fueling the future of medicine. Mind-blowing, right? Discover the science within!"
+        "judul": "Inside Your Body: The Micro-Verse Unveiled",
+        "deskripsi": "Dive into the stunning world of microscopic life. Witness the unseen beauty of cells and DNA. #MicroScience #BiologyFacts #Shorts",
+        "naskah_suara": "Ever wondered what truly powers life at its core? Dive deep into the microscopic medical world! Witness glowing DNA strands unravel, vibrant cells bustling with activity, and even neon viruses, all in stunning detail. This unseen universe is constantly working, a complex ballet of biological wonders. It's a breathtaking reminder of the intricate science within us. Truly astounding!"
     },
     "adobestock": {
-        "judul": "Stunning Hyperrealistic Microscopic Medical Cell Landscape",
-        "kata_kunci": "microscopic, medical, science, biology, DNA, RNA, cell, virus, bacteria, neuron, molecular, genetic, biotechnology, research, laboratory, glow, neon, futuristic, 3D render, digital art, hyperrealistic, detailed, intricate, complex, vivid, vibrant, light, abstract, disease, health, medicine",
-        "prompt_gambar": "Highly detailed, hyperrealistic 3D render of a microscopic medical science landscape. Focus on intricate cellular structures, glowing DNA helix strands, and vibrant neon viruses interacting dynamically within a fluid environment. The scene should depict a dense, complex biological network with stunning depth of field. Use intense, electric neon lighting in shades of blue, purple, green, and pink to illuminate the various components, highlighting their delicate structures and movements. Ultra-high resolution, cinematic lighting, molecular visualization, scientific illustration, abstract biological art."
+        "judul": "Hyperrealistic 3D Render of Dynamic Microscopic Medical World",
+        "kata_kunci": "microscopic, medical, science, biology, DNA, RNA, cell, virus, bacteria, pathogen, nucleus, mitochondria, gene, genetic, molecular, biotechnology, nanotechnology, research, laboratory, healthcare, microscopy, scientific visualization, 3D render, digital art, neon, glowing, vibrant, futuristic, hyperrealistic, detailed",
+        "prompt_gambar": "A hyperrealistic 3D render of a microscopic medical science scene, depicting glowing DNA double helix strands intertwining with vibrant cellular structures like mitochondria and cell nuclei. Neon viruses and bacteria with bioluminescent edges are subtly integrated into the background. The scene should be intricately detailed, with a shallow depth of field, showcasing a deep black background contrasted by brilliant, luminous blues, purples, greens, and pinks. Emphasize refraction and subsurface scattering effects on the biological elements. The overall aesthetic should be futuristic, clean, and highly detailed, like a scientific visualization from an advanced laboratory, with light rays piercing through the micro-environment. Ultra-wide angle view, cinematic lighting."
     }
 }
