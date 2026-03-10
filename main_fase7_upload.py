@@ -14,6 +14,10 @@ def upload_ke_youtube():
     client_secret = os.environ.get("YT_CLIENT_SECRET")
     refresh_token = os.environ.get("YT_REFRESH_TOKEN")
 
+    if not all([client_id, client_secret, refresh_token]):
+        print("ERROR: Kredensial YouTube di Secrets belum lengkap!")
+        sys.exit(1)
+
     creds_data = {
         "client_id": client_id,
         "client_secret": client_secret,
@@ -24,12 +28,16 @@ def upload_ke_youtube():
     creds = Credentials.from_authorized_user_info(creds_data)
     
     # Refresh token otomatis jika expired
-    if creds.expired and creds.refresh_token:
-        creds.refresh(Request())
+    try:
+        if creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+    except Exception as e:
+        print(f"Gagal refresh token: {e}")
+        sys.exit(1)
 
     youtube = build("youtube", "v3", credentials=creds)
 
-    # Baca metadata dari state.json yang dibuat Gemini
+    # Baca metadata dari state.json
     with open("state.json", "r") as f:
         data = json.load(f)
 
@@ -45,7 +53,6 @@ def upload_ke_youtube():
         }
     }
 
-    # Upload file final_shorts.mp4 hasil rakitan FFmpeg
     media = MediaFileUpload("final_shorts.mp4", chunksize=-1, resumable=True)
     
     print("Sedang mengirim video ke server YouTube...")
