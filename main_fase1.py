@@ -1,10 +1,15 @@
-import os, json, sys, google.generativeai as genai
+import os, json, sys
+from google import genai
 
 def panggil_gemini_otak():
-    print("Agent: Merancang skenario 3 adegan...")
+    print("Agent: Memulai koneksi ke Google GenAI (Versi Terbaru)...")
     api_key = os.environ.get("GEMINI_API_KEY")
-    genai.configure(api_key=api_key)
-    model = genai.GenerativeModel('gemini-1.5-flash')
+    if not api_key:
+        print("ERROR: API Key tidak ditemukan di Secrets!")
+        sys.exit(1)
+
+    # Inisialisasi Client Baru 2026
+    client = genai.Client(api_key=api_key)
 
     prompt_instruksi = """
     Buat konsep video Shorts 15 detik. Tema: Teknologi Masa Depan/Medis.
@@ -19,14 +24,25 @@ def panggil_gemini_otak():
       }
     }
     """
+    
     try:
-        response = model.generate_content(prompt_instruksi)
-        teks = response.text.strip().removeprefix('```json').removesuffix('```').strip()
+        response = client.models.generate_content(
+            model='gemini-1.5-flash',
+            contents=prompt_instruksi
+        )
+        
+        teks = response.text.strip()
+        if teks.startswith("```json"):
+            teks = teks.removeprefix('```json').removesuffix('```').strip()
+        
+        # Validasi JSON sebelum simpan
+        json.loads(teks) 
+        
         with open("state.json", "w") as f:
             f.write(teks)
-        print("SUKSES: Skenario 3 adegan siap!")
+        print("SUKSES: Skenario 3 adegan siap tanpa error!")
     except Exception as e:
-        print(f"Gagal: {e}")
+        print(f"Agent Gagal pada Fase 1: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":
