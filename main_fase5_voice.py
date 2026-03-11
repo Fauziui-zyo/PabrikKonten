@@ -1,31 +1,26 @@
-import os
-import json
-import sys
-import asyncio
-import edge_tts
+import os, json, sys, asyncio, edge_tts
 
-async def buat_suara():
-    print("Membaca naskah dari state.json...")
-    try:
-        with open("state.json", "r") as f:
-            data = json.load(f)
-        naskah = data["youtube"]["naskah_suara"]
-    except Exception as e:
-        print(f"Gagal membaca naskah: {e}")
-        sys.exit(1)
+async def buat_suara_dan_vtt():
+    print("Membaca naskah dan membuat subtitle...")
+    with open("state.json", "r") as f: data = json.load(f)
+    naskah = data["youtube"]["naskah_suara"]
 
-    # Suara Pria Berwibawa (Brian)
     VOICE = "en-US-BrianNeural"
-    OUTPUT_FILE = "voice.mp3"
+    # Kita simpan suara DAN subtitle
+    communicate = edge_tts.Communicate(naskah, VOICE)
+    submaker = edge_tts.SubMaker()
+    
+    with open("voice.mp3", "wb") as f:
+        async for chunk in communicate.stream():
+            if chunk["type"] == "audio":
+                f.write(chunk["data"])
+            elif chunk["type"] == "WordBoundary":
+                submaker.feed(chunk)
 
-    print(f"Menyintesis suara narasi...")
-    try:
-        communicate = edge_tts.Communicate(naskah, VOICE)
-        await communicate.save(OUTPUT_FILE)
-        print(f"SUKSES: {OUTPUT_FILE} berhasil dibuat!")
-    except Exception as e:
-        print(f"Gagal membuat suara: {e}")
-        sys.exit(1)
+    with open("subtitles.vtt", "w", encoding="utf-8") as f:
+        f.write(submaker.get_vtt())
+    
+    print("SUKSES: Voice.mp3 dan Subtitles.vtt berhasil dibuat!")
 
 if __name__ == "__main__":
-    asyncio.run(buat_suara())
+    asyncio.run(buat_suara_dan_vtt())
