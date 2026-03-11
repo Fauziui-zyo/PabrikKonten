@@ -1,8 +1,8 @@
-name: Pabrik Konten 100 Persen Otonom
+name: Pabrik Konten Otonom 2026
 
 on:
   schedule:
-    - cron: '30 0 * * *' # Jalan otomatis jam 07.30 WITA setiap hari
+    - cron: '30 0 * * *' # Jam 07.30 WITA
   workflow_dispatch:
 
 env:
@@ -12,7 +12,7 @@ permissions:
   contents: write
 
 jobs:
-  eksekusi_total:
+  produksi:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
@@ -23,39 +23,28 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Instal FFmpeg & Library
+      - name: Instal Dependencies
         run: |
           sudo apt-get update && sudo apt-get install -y ffmpeg
-          pip install google-generativeai requests edge-tts google-api-python-client google-auth-oauthlib
+          pip install google-genai requests edge-tts google-api-python-client google-auth-oauthlib
 
-      - name: Fase 1 - Gemini (Ide & Metadata)
+      - name: Eksekusi Semua Fase
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: python main_fase1.py
-
-      - name: Fase 2 - Hugging Face (Lukisan AI)
-        env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: python main_fase2.py
-
-      - name: Fase 3 - Metadata Adobe Stock
-        run: python main_fase3_csv.py
-
-      - name: Fase 5 - Voiceover (Suara AI)
-        run: python main_fase5_voice.py
-
-      - name: Fase 6 - Rakit Video (Auto-Motion)
-        run: python main_fase6_assemble.py
-
-      - name: Fase 7 - Upload YouTube Shorts
-        env:
           YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
           YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
-        run: python main_fase7_upload.py
+        run: |
+          python main_fase1.py
+          python main_fase2.py
+          python main_fase3_csv.py
+          python main_fase5_voice.py
+          python main_fase6_assemble.py
+          python main_fase7_upload.py
 
-      - name: Simpan Hasil Harian
+      - name: Simpan Hasil Ke Repo
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "Konten harian otomatis berhasil diproduksi"
-          file_pattern: 'state.json base_image.jpg metadata.csv voice.mp3 final_shorts.mp4'
+          commit_message: "Bot: Produksi harian selesai"
+          file_pattern: 'state.json base_image.jpg metadata.csv voice.mp3 subtitles.vtt final_shorts.mp4'
