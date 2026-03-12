@@ -1,18 +1,12 @@
-name: Pabrik Konten Otonom 2026
+name: V-Ultimate Serverless Factory
 
 on:
   schedule:
     - cron: '30 0 * * *' # Jam 07.30 WITA
   workflow_dispatch:
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
-permissions:
-  contents: write
-
 jobs:
-  produksi:
+  bangun_pabrik:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
@@ -23,28 +17,18 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Instal Dependencies
-        run: |
-          sudo apt-get update && sudo apt-get install -y ffmpeg
-          pip install google-genai requests edge-tts google-api-python-client google-auth-oauthlib
+      - name: Instal Remote Remote Control (Modal)
+        run: pip install modal
 
-      - name: Eksekusi Semua Fase
+      - name: Eksekusi Reaktor GPU
         env:
+          MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID }}
+          MODAL_TOKEN_SECRET: ${{ secrets.MODAL_TOKEN_SECRET }}
+          # Rahasia lain dikirim sebagai Environment Variable ke mesin GPU
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
           YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
         run: |
-          python main_fase1.py
-          python main_fase2.py
-          python main_fase3_csv.py
-          python main_fase5_voice.py
-          python main_fase6_assemble.py
-          python main_fase7_upload.py
-
-      - name: Simpan Hasil Ke Repo
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "Bot: Produksi harian selesai"
-          file_pattern: 'state.json base_image.jpg metadata.csv voice.mp3 subtitles.vtt final_shorts.mp4'
+          modal run pabrik_konten.py
