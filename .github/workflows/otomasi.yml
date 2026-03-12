@@ -17,9 +17,9 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Instal Remote Remote Control (Modal)
-        run: pip install modal requests feedparser google-genai tenacity
-
+      - name: Instal Modul Sapu Jagat (Anti-Error)
+        run: |
+          pip install modal requests feedparser google-genai tenacity edge-tts google-api-python-client google-auth-oauthlib google-auth-httplib2
       - name: Eksekusi Reaktor GPU
         env:
           MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID }}
