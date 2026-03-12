@@ -181,7 +181,7 @@ def bersihkan_sampah_pabrik():
 # ==========================================
 # FUNGSI UTAMA (DI DALAM GPU)
 # ==========================================
-@app.function(image=mesin_produksi, timeout=3600, secrets=[modal.Secret.from_dict(os.environ)])
+@app.function(image=mesin_produksi, timeout=3600, secrets=[modal.Secret.from_dict(dict(os.environ))])
 def eksekusi_pabrik():
     print("🔥 REAKTOR GPU MENYALA 🔥")
     gemini_key = os.environ.get("GEMINI_API_KEY")
