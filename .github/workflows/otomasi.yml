@@ -18,7 +18,7 @@ jobs:
           python-version: '3.11'
 
       - name: Instal Remote Remote Control (Modal)
-        run: pip install modal
+        run: pip install modal requests feedparser google-genai tenacity
 
       - name: Eksekusi Reaktor GPU
         env:
