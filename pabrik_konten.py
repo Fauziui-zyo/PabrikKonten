@@ -50,7 +50,7 @@ def buat_naskah_dan_prompt(topik_hari_ini, api_key):
         "video_prompts": ["Prompt scene 1 rinci", "Prompt scene 2", "Prompt scene 3", "Prompt scene 4", "Prompt scene 5"]
     }}
     """
-    response = client.models.generate_content(model='gemini-1.5-flash', contents=prompt)
+    response = client.models.generate_content(model='gemini-2.0-flash', contents=prompt)
     teks = response.text.strip().removeprefix('```json').removesuffix('```').strip()
     return json.loads(teks)
 
