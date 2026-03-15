@@ -1,3 +1,3 @@
 requests
-duckduckgo_search
+duckduckgo-search
 edge-tts
