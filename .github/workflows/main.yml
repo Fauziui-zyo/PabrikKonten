@@ -5,33 +5,45 @@ on:
     - cron: '0 0 * * *'
   workflow_dispatch:
 
+env:
+  PYTHONUNBUFFERED: 1 # Memastikan log Python muncul secara real-time
+
 jobs:
   produce-reel:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Install Tools
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: ⚙️ Install Tools & FFmpeg
         run: |
           sudo apt-get update && sudo apt-get install -y ffmpeg
-          pip install requests duckduckgo_search edge-tts
+          pip install requests duckduckgo-search edge-tts
 
-      - name: Run Ghost Factory
+      - name: 🧠 Run Ghost Factory
         run: python ghost_factory.py
 
-      - name: FFmpeg Mashup & Anti-Detection
+      - name: 🎬 FFmpeg Mashup (Optimized)
         run: |
           # Ambil durasi audio otomatis
           DUR=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 audio.mp3)
+          echo "Durasi Video: $DUR detik"
           
-          # Render dengan Film Grain & Metadata Scrubbing
+          # Render Video dengan FPS stabil dan Anti-Detection
           ffmpeg -y -loop 1 -i input_bg.jpg -i audio.mp3 \
-          -vf "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,noise=alls=15:allf=t+u" \
-          -c:v libx264 -t $DUR -pix_fmt yuv420p -crf 23 -preset veryfast \
+          -vf "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,noise=alls=10:allf=t+u,fps=30" \
+          -c:v libx264 -t $DUR -pix_fmt yuv420p -crf 23 -preset fast \
           -c:a aac -b:a 128k -map_metadata -1 -movflags +faststart \
-          final_reel_makassar.mp4
+          final_reel.mp4
 
-      - name: 💾 Upload Hasil Produksi
+      - name: 💾 Upload Video Result
         uses: actions/upload-artifact@v4
         with:
-          name: medical-reel-${{ github.run_id }}
-          path: final_reel_makassar.mp4
+          name: medical-reel-result
+          path: final_reel.mp4
